@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAppSelector } from '../hooks/useAppStore';
 import { statsApi } from '../services/api';
 
@@ -23,6 +24,7 @@ const recentActivity = [
 
 const Dashboard = () => {
   const { user } = useAppSelector((state) => state.auth);
+  const navigate = useNavigate();
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -103,25 +105,25 @@ const Dashboard = () => {
         <div className="glass-card p-6 animate-slide-up" style={{ animationDelay: '0.1s' }}>
           <h2 className="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h2>
           <div className="grid grid-cols-2 gap-3">
-            <button className="p-4 bg-blue-50/50 hover:bg-blue-50/80 rounded-xl text-left transition-all duration-200 group">
+            <button onClick={() => navigate('/alerts')} className="p-4 bg-blue-50/50 hover:bg-blue-50/80 rounded-xl text-left transition-all duration-200 group">
               <svg className="w-6 h-6 text-blue-600 mb-2 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
               </svg>
               <p className="text-sm font-medium text-gray-700">View Alerts</p>
             </button>
-            <button className="p-4 bg-emerald-50/50 hover:bg-emerald-50/80 rounded-xl text-left transition-all duration-200 group">
+            <button onClick={() => navigate('/shelters')} className="p-4 bg-emerald-50/50 hover:bg-emerald-50/80 rounded-xl text-left transition-all duration-200 group">
               <svg className="w-6 h-6 text-emerald-600 mb-2 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
               </svg>
               <p className="text-sm font-medium text-gray-700">Find Shelters</p>
             </button>
-            <button className="p-4 bg-amber-50/50 hover:bg-amber-50/80 rounded-xl text-left transition-all duration-200 group">
+            <button onClick={() => navigate('/volunteer')} className="p-4 bg-amber-50/50 hover:bg-amber-50/80 rounded-xl text-left transition-all duration-200 group">
               <svg className="w-6 h-6 text-amber-600 mb-2 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
               </svg>
               <p className="text-sm font-medium text-gray-700">Volunteer</p>
             </button>
-            <button className="p-4 bg-purple-50/50 hover:bg-purple-50/80 rounded-xl text-left transition-all duration-200 group">
+            <button onClick={() => navigate('/resources')} className="p-4 bg-purple-50/50 hover:bg-purple-50/80 rounded-xl text-left transition-all duration-200 group">
               <svg className="w-6 h-6 text-purple-600 mb-2 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
               </svg>
