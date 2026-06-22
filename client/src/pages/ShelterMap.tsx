@@ -3,6 +3,8 @@ import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import L from 'leaflet';
 import { shelterApi } from '../services/api';
 import { Shelter } from '../types';
+import Skeleton from '../components/Skeleton';
+import PageTitle from '../components/PageTitle';
 
 L.Icon.Default.mergeOptions({
   iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
@@ -59,13 +61,33 @@ const ShelterMap = () => {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-20">
-        <div className="flex flex-col items-center space-y-3">
-          <svg className="animate-spin h-8 w-8 text-accent" viewBox="0 0 24 24">
-            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
-            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-          </svg>
-          <p className="text-sm text-ink-muted">Loading shelters...</p>
+      <div className="space-y-8">
+        <PageTitle title="Relief Centers" />
+        <div className="section-header">
+          <div className="space-y-2">
+            <Skeleton className="h-8 w-48" />
+            <Skeleton className="h-5 w-72" />
+          </div>
+          <Skeleton className="h-10 w-48 rounded-btn" />
+        </div>
+        <div className="card p-6">
+          <Skeleton className="h-[450px] w-full rounded-btn" />
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+          {Array.from({ length: 3 }).map((_, i) => (
+            <div key={i} className="card-hover p-5 space-y-4">
+              <div className="flex items-center space-x-3">
+                <Skeleton className="w-10 h-10 rounded-btn" />
+                <div className="space-y-2">
+                  <Skeleton className="h-4 w-32" />
+                  <Skeleton className="h-3 w-20" />
+                </div>
+              </div>
+              <Skeleton className="h-4 w-full" />
+              <Skeleton className="h-2.5 w-full rounded-full" />
+              <Skeleton className="h-4 w-32" />
+            </div>
+          ))}
         </div>
       </div>
     );
@@ -73,6 +95,7 @@ const ShelterMap = () => {
 
   return (
     <div>
+      <PageTitle title="Relief Centers" />
       <div className="section-header">
         <div>
           <h1 className="page-title">Relief Centers</h1>

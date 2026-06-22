@@ -5,24 +5,56 @@ import ApiError from '../utils/ApiError';
 import { ResourceStatus } from '../types';
 
 export const getResources = asyncHandler(async (req: Request, res: Response) => {
+  const page = Math.max(1, parseInt(req.query.page as string) || 1);
+  const limit = Math.min(100, Math.max(1, parseInt(req.query.limit as string) || 20));
+  const skip = (page - 1) * limit;
   const { status, type } = req.query;
   const filter: Record<string, any> = {};
 
   if (status) filter.status = status;
   if (type) filter.type = type;
 
-  const resources = await Resource.find(filter)
-    .populate('disaster', 'name type severity status')
-    .sort({ createdAt: -1 });
+  const [resources, total] = await Promise.all([
+    Resource.find(filter)
+      .populate('disaster', 'name type severity status')
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit),
+    Resource.countDocuments(filter),
+  ]);
 
-  res.json({ success: true, count: resources.length, data: resources });
+  res.json({
+    success: true,
+    count: resources.length,
+    total,
+    page,
+    totalPages: Math.ceil(total / limit),
+    data: resources,
+  });
 });
 
 export const getResourcesByDisaster = asyncHandler(async (req: Request, res: Response) => {
-  const resources = await Resource.find({ disaster: req.params.id })
-    .sort({ createdAt: -1 });
+  const page = Math.max(1, parseInt(req.query.page as string) || 1);
+  const limit = Math.min(100, Math.max(1, parseInt(req.query.limit as string) || 20));
+  const skip = (page - 1) * limit;
+  const filter = { disaster: req.params.id };
 
-  res.json({ success: true, count: resources.length, data: resources });
+  const [resources, total] = await Promise.all([
+    Resource.find(filter)
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit),
+    Resource.countDocuments(filter),
+  ]);
+
+  res.json({
+    success: true,
+    count: resources.length,
+    total,
+    page,
+    totalPages: Math.ceil(total / limit),
+    data: resources,
+  });
 });
 
 export const createResource = asyncHandler(async (req: Request, res: Response) => {

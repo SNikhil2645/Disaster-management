@@ -26,7 +26,7 @@ const getTransporter = async (): Promise<nodemailer.Transporter> => {
         pass: testAccount.pass,
       },
     });
-    console.log('📧 Using Ethereal test email account:', testAccount.user);
+    console.log('Using Ethereal test email account:', testAccount.user);
   }
 
   return transporter;
@@ -56,7 +56,7 @@ export const sendEmail = async ({
     if (process.env.NODE_ENV === 'development') {
       const previewUrl = nodemailer.getTestMessageUrl(info);
       if (previewUrl) {
-        console.log(`📧 Email preview: ${previewUrl}`);
+        console.log(`Email preview: ${previewUrl}`);
       }
     }
   } catch (error) {

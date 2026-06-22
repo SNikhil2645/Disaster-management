@@ -17,11 +17,11 @@ export const sendSMS = async ({
         from: process.env.TWILIO_PHONE_NUMBER,
         to,
       });
-      console.log(`📱 SMS sent to ${to}`);
+      console.log(`SMS sent to ${to}`);
     } catch (error) {
       console.error('Failed to send SMS via Twilio:', error);
     }
   } else {
-    console.log(`📱 [DEV SMS] To: ${to} — Message: ${message}`);
+    console.log(`[DEV SMS] To: ${to} — Message: ${message}`);
   }
 };

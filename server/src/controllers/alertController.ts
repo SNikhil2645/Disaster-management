@@ -5,12 +5,28 @@ import ApiError from '../utils/ApiError';
 import { broadcastAlert } from '../services/notificationService';
 
 export const getAlerts = asyncHandler(async (req: Request, res: Response) => {
-  const alerts = await Alert.find()
-    .populate('createdBy', 'name')
-    .populate('disaster', 'name type severity')
-    .sort({ createdAt: -1 });
+  const page = Math.max(1, parseInt(req.query.page as string) || 1);
+  const limit = Math.min(100, Math.max(1, parseInt(req.query.limit as string) || 20));
+  const skip = (page - 1) * limit;
 
-  res.json({ success: true, count: alerts.length, data: alerts });
+  const [alerts, total] = await Promise.all([
+    Alert.find()
+      .populate('createdBy', 'name')
+      .populate('disaster', 'name type severity')
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit),
+    Alert.countDocuments(),
+  ]);
+
+  res.json({
+    success: true,
+    count: alerts.length,
+    total,
+    page,
+    totalPages: Math.ceil(total / limit),
+    data: alerts,
+  });
 });
 
 export const getAlert = asyncHandler(async (req: Request, res: Response) => {

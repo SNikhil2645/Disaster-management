@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useAppSelector } from '../hooks/useAppStore';
 import { alertApi } from '../services/api';
+import PageTitle from '../components/PageTitle';
 
 const quickActions = [
   { label: 'Manage Users', icon: 'M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z' },
@@ -37,6 +38,7 @@ const AdminDashboard = () => {
 
   return (
     <div>
+      <PageTitle title="Admin Dashboard" />
       <div className="mb-8">
         <h1 className="page-title">Admin Dashboard</h1>
         <p className="page-subtitle">

@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAppSelector } from '../hooks/useAppStore';
 import { statsApi } from '../services/api';
+import PageTitle from '../components/PageTitle';
 
 interface DashboardStats {
   activeDisasters: number;
@@ -44,6 +45,7 @@ const Dashboard = () => {
 
   return (
     <div className="space-y-8">
+      <PageTitle title="Dashboard" />
       <div>
         <h1 className="page-title">
           Welcome back, <span className="text-ink">{user?.name}</span>

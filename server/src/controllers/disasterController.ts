@@ -4,16 +4,31 @@ import asyncHandler from '../utils/asyncHandler';
 import ApiError from '../utils/ApiError';
 
 export const getDisasters = asyncHandler(async (req: Request, res: Response) => {
+  const page = Math.max(1, parseInt(req.query.page as string) || 1);
+  const limit = Math.min(100, Math.max(1, parseInt(req.query.limit as string) || 20));
+  const skip = (page - 1) * limit;
   const { status, severity } = req.query;
   const filter: Record<string, any> = {};
   if (status) filter.status = status;
   if (severity) filter.severity = severity;
 
-  const disasters = await Disaster.find(filter)
-    .populate('reportedBy', 'name email')
-    .sort({ createdAt: -1 });
+  const [disasters, total] = await Promise.all([
+    Disaster.find(filter)
+      .populate('reportedBy', 'name email')
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit),
+    Disaster.countDocuments(filter),
+  ]);
 
-  res.json({ success: true, count: disasters.length, data: disasters });
+  res.json({
+    success: true,
+    count: disasters.length,
+    total,
+    page,
+    totalPages: Math.ceil(total / limit),
+    data: disasters,
+  });
 });
 
 export const getDisaster = asyncHandler(async (req: Request, res: Response) => {

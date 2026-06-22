@@ -2,6 +2,7 @@ import { useState, FormEvent } from 'react';
 import { Link } from 'react-router-dom';
 import { useAppDispatch, useAppSelector } from '../hooks/useAppStore';
 import { register, clearError } from '../store/authSlice';
+import PageTitle from '../components/PageTitle';
 
 const Register = () => {
   const dispatch = useAppDispatch();
@@ -43,6 +44,7 @@ const Register = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center relative overflow-hidden">
+      <PageTitle title="Create Account" />
       <div className="w-full max-w-md px-4">
         <div className="text-center mb-8">
           <div className="inline-flex w-16 h-16 bg-brand-500 rounded-card items-center justify-center mb-4">

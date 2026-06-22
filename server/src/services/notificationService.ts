@@ -30,7 +30,7 @@ export const broadcastAlert = async (alert: IAlert): Promise<void> => {
       if (recipient.email) {
         sendEmail({
           to: recipient.email,
-          subject: `🚨 ${alert.priority.toUpperCase()}: ${alert.title}`,
+          subject: `[${alert.priority.toUpperCase()}] ${alert.title}`,
           text: `${alert.message}\n\n— Emergency Alerts System`,
         });
       }

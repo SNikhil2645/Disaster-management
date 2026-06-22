@@ -5,19 +5,34 @@ import ApiError from '../utils/ApiError';
 import { notifyTaskUpdate } from '../services/notificationService';
 
 export const getTasks = asyncHandler(async (req: Request, res: Response) => {
+  const page = Math.max(1, parseInt(req.query.page as string) || 1);
+  const limit = Math.min(100, Math.max(1, parseInt(req.query.limit as string) || 20));
+  const skip = (page - 1) * limit;
   const { status, disaster } = req.query;
   const filter: Record<string, any> = {};
 
   if (status) filter.status = status;
   if (disaster) filter.disaster = disaster;
 
-  const tasks = await Task.find(filter)
-    .populate('assignedTo', 'name email phone')
-    .populate('assignedBy', 'name')
-    .populate('disaster', 'name type severity')
-    .sort({ createdAt: -1 });
+  const [tasks, total] = await Promise.all([
+    Task.find(filter)
+      .populate('assignedTo', 'name email phone')
+      .populate('assignedBy', 'name')
+      .populate('disaster', 'name type severity')
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit),
+    Task.countDocuments(filter),
+  ]);
 
-  res.json({ success: true, count: tasks.length, data: tasks });
+  res.json({
+    success: true,
+    count: tasks.length,
+    total,
+    page,
+    totalPages: Math.ceil(total / limit),
+    data: tasks,
+  });
 });
 
 export const createTask = asyncHandler(async (req: Request, res: Response) => {
