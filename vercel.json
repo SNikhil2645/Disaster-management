@@ -1,9 +1,10 @@
 {
-  "buildCommand": "cd server && npm run build",
+  "buildCommand": "cd client && npm run build && cd ../server && npm run build",
   "outputDirectory": "server/dist",
-  "installCommand": "cd server && npm install",
+  "installCommand": "cd client && npm install && cd ../server && npm install",
   "rewrites": [
-    { "source": "/api/(.*)", "destination": "/api/$1" }
+    { "source": "/api/(.*)", "destination": "/api/$1" },
+    { "source": "/(.*)", "destination": "/" }
   ],
   "functions": {
     "api/**/*.js": {

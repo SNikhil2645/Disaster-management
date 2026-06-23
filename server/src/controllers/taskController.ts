@@ -2,27 +2,54 @@ import { Request, Response } from 'express';
 import Task from '../models/Task';
 import asyncHandler from '../utils/asyncHandler';
 import ApiError from '../utils/ApiError';
+import { notifyTaskUpdate } from '../services/notificationService';
 
 export const getTasks = asyncHandler(async (req: Request, res: Response) => {
+  const page = Math.max(1, parseInt(req.query.page as string) || 1);
+  const limit = Math.min(100, Math.max(1, parseInt(req.query.limit as string) || 20));
+  const skip = (page - 1) * limit;
   const { status, disaster } = req.query;
   const filter: Record<string, any> = {};
 
   if (status) filter.status = status;
   if (disaster) filter.disaster = disaster;
 
-  const tasks = await Task.find(filter)
-    .populate('assignedTo', 'name email phone')
-    .populate('assignedBy', 'name')
-    .populate('disaster', 'name type severity')
-    .sort({ createdAt: -1 });
+  const [tasks, total] = await Promise.all([
+    Task.find(filter)
+      .populate('assignedTo', 'name email phone')
+      .populate('assignedBy', 'name')
+      .populate('disaster', 'name type severity')
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit),
+    Task.countDocuments(filter),
+  ]);
 
-  res.json({ success: true, count: tasks.length, data: tasks });
+  res.json({
+    success: true,
+    count: tasks.length,
+    total,
+    page,
+    totalPages: Math.ceil(total / limit),
+    data: tasks,
+  });
 });
 
 export const createTask = asyncHandler(async (req: Request, res: Response) => {
   req.body.assignedBy = (req as any).user.id;
   const task = await Task.create(req.body);
-  res.status(201).json({ success: true, data: task });
+
+  const populated = await Task.findById(task._id)
+    .populate('assignedTo', 'name email phone')
+    .populate('assignedBy', 'name')
+    .populate('disaster', 'name type severity');
+
+  if (populated?.assignedTo) {
+    const assigneeId = typeof populated.assignedTo === 'object' ? (populated.assignedTo as any)._id.toString() : populated.assignedTo;
+    notifyTaskUpdate(assigneeId, populated);
+  }
+
+  res.status(201).json({ success: true, data: populated });
 });
 
 export const updateTaskStatus = asyncHandler(async (req: Request, res: Response) => {
@@ -34,7 +61,14 @@ export const updateTaskStatus = asyncHandler(async (req: Request, res: Response)
   task.status = status;
   await task.save();
 
-  res.json({ success: true, data: task });
+  const populated = await Task.findById(task._id)
+    .populate('assignedTo', 'name email phone')
+    .populate('assignedBy', 'name')
+    .populate('disaster', 'name type severity');
+
+  notifyTaskUpdate(task.assignedTo.toString(), populated);
+
+  res.json({ success: true, data: populated });
 });
 
 export const addTaskProgress = asyncHandler(async (req: Request, res: Response) => {
@@ -52,5 +86,12 @@ export const addTaskProgress = asyncHandler(async (req: Request, res: Response) 
 
   await task.save();
 
-  res.json({ success: true, data: task });
+  const populated = await Task.findById(task._id)
+    .populate('assignedTo', 'name email phone')
+    .populate('assignedBy', 'name')
+    .populate('disaster', 'name type severity');
+
+  notifyTaskUpdate(task.assignedTo.toString(), populated);
+
+  res.json({ success: true, data: populated });
 });

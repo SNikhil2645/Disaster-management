@@ -25,14 +25,29 @@ export const registerVolunteer = asyncHandler(async (req: Request, res: Response
 export const getVolunteerTasks = asyncHandler(async (req: Request, res: Response) => {
   const volunteerId = req.params.id;
   const { status } = req.query;
+  const page = Math.max(1, parseInt(req.query.page as string) || 1);
+  const limit = Math.min(100, Math.max(1, parseInt(req.query.limit as string) || 20));
+  const skip = (page - 1) * limit;
 
   const filter: Record<string, any> = { assignedTo: volunteerId };
   if (status) filter.status = status;
 
-  const tasks = await Task.find(filter)
-    .populate('disaster', 'name type severity')
-    .populate('assignedBy', 'name')
-    .sort({ createdAt: -1 });
+  const [tasks, total] = await Promise.all([
+    Task.find(filter)
+      .populate('disaster', 'name type severity')
+      .populate('assignedBy', 'name')
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit),
+    Task.countDocuments(filter),
+  ]);
 
-  res.json({ success: true, count: tasks.length, data: tasks });
+  res.json({
+    success: true,
+    count: tasks.length,
+    total,
+    page,
+    totalPages: Math.ceil(total / limit),
+    data: tasks,
+  });
 });
